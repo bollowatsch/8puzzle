@@ -2,6 +2,10 @@ from heuristics import manhattan, hamming
 
 
 class Node:
+    """
+    Basic Node calss for a 3x3 grid of tiles (int). It contains the numbers 1 to 8 and None as a placeholder for an
+    empty cell.
+    """
     grid: list[int] = []
     _goal_state: list[int] = [None, 1, 2, 3, 4, 5, 6, 7, 8]
 
@@ -26,9 +30,11 @@ class Node:
         return self._number_of_misplaced_tiles() % 2 == 0
 
     def _is_goal_state(self) -> bool:
+        """Compare grid to goal state."""
         return self.grid == self._goal_state
 
     def _number_of_misplaced_tiles(self) -> int:
+        """Count the number of misplaced tiles. Necessary for solvability as well as heurisitics."""
         num: int = 0
         for i in range(9):
             if self.grid[i] != self._goal_state[i]:
