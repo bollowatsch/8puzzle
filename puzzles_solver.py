@@ -30,6 +30,13 @@ class Node:
         if not self._is_solvable():
             raise GridException("The provided grid is not solvable.")
 
+    def __eq__(self, other):
+        # TODO equality is not enough, since we need to check, that the minimal cost of the state has to be saved
+        if not isinstance(other, Node):
+            # don't attempt to compare against unrelated types
+            return NotImplemented
+        return self.grid == other.grid
+
     def _is_solvable(self) -> bool:
         """8-puzzle is solvable if it contains an even number of misplaced tiles"""
         return self.number_of_misplaced_tiles() % 2 == 0
