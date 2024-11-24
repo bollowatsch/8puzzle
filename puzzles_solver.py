@@ -24,12 +24,13 @@ class Node:
     Basic Node class for a 3x3 grid of tiles (int). It contains the numbers 1 to 8 and None as a placeholder for an
     empty cell.
     """
-    grid: list[int] = []
-    _goal_state: list[int] = []
 
-    def __init__(self, initial_grid=None, goal_state=None):
+    def __init__(self, initial_grid: list[int] = None, goal_state: list[int] = None, level: int = None,
+                 f_val: int = None):
         self.grid = initial_grid if initial_grid is not None else self.create_random_grid()
         self.goal_state = goal_state if goal_state is not None else [None, 1, 2, 3, 4, 5, 6, 7, 8]
+        self.level = 0 if level is None else level + 1
+        self.f_val = f_val
 
         # Validate initial state
         if len(self.grid) != 9:
@@ -86,6 +87,9 @@ class Node:
             temp_node._swap_tiles(empty_tile_index, empty_tile_index + offset)
             next_nodes.append(temp_node)
         return next_nodes
+
+    def get_level(self):
+        return self.level
 
     @staticmethod
     def create_random_grid():
