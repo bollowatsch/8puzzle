@@ -1,16 +1,17 @@
 from heuristics import manhattan, hamming
+from exceptions import GridException
 
 
 class PuzzleSolver:
-    def get_f(self) -> int: #TODO implementation
+    def get_f(self) -> int:  # TODO implementation
         """Returns total cost, consisting of actual cost and possible heuristic cost."""
         return self.get_g() + self.get_h()
 
-    def get_g(self) -> int: #TODO implementation
+    def get_g(self) -> int:  # TODO implementation
         """Get current cost as number of iterations."""
         pass
 
-    def get_h(self) -> int: #TODO implementation
+    def get_h(self) -> int:  # TODO implementation
         """Get cost as calculated by chosen heuristic."""
         pass
 
@@ -29,17 +30,18 @@ class Node:
 
         # Validate initial state
         if len(self.grid) != 9:
-            raise Exception #TODO Exceptionclasses
+            raise GridException
         for num in range(1, 9):
             if not self.grid.__contains__(num):
-                raise Exception  #TODO Exceptionclasses
+                raise GridException(f"The provided grid doesn't contain the number {num}."
+                                    "A valid grid needs to hold each value form 1-8 exactly once.")
         if not self.grid.__contains__(None):
-            raise Exception #TODO Exceptionclasses
+            raise GridException("The provided grid has no empty tile with value 'None'")
         if not self._is_solvable():
-            raise Exception #TODO Exceptionclasses
+            raise GridException("The provided grid is not solvable.")
 
     def _is_solvable(self) -> bool:
-        """8-puzzle is solvable if it contians an even number of misplaced tiles"""
+        """8-puzzle is solvable if it contains an even number of misplaced tiles"""
         return self._number_of_misplaced_tiles() % 2 == 0
 
     def _is_goal_state(self) -> bool:
@@ -47,14 +49,14 @@ class Node:
         return self.grid == self._goal_state
 
     def _number_of_misplaced_tiles(self) -> int:
-        """Count the number of misplaced tiles. Necessary for solvability as well as heurisitics."""
+        """Count the number of misplaced tiles. Necessary for solvability as well as heuristics."""
         num: int = 0
         for i in range(9):
             if self.grid[i] != self._goal_state[i]:
                 num += 1
         return num
 
-    def _swap_tiles(self, i:int, j:int):
+    def _swap_tiles(self, i: int, j: int):
         """Swaps two tiles with corresponding indices."""
 
     def _get_next_states(self) -> list:
@@ -66,7 +68,7 @@ class Node:
         if self.grid[4] is None:
             # Swap with upper neighbour
             node1 = Node(self.grid)
-            node1._swap_tiles(4,1)
+            node1._swap_tiles(4, 1)
             # Swap with left neighbor
             node2 = Node(self.grid)
             node2._swap_tiles(4, 3)
@@ -82,7 +84,7 @@ class Node:
         if self.grid[0] is None:
             # Swap with upper neighbour
             node1 = Node(self.grid)
-            node1._swap_tiles(4,1)
+            node1._swap_tiles(4, 1)
             # Swap with left neighbor
             node2 = Node(self.grid)
             node2._swap_tiles(4, 3)
