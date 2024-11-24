@@ -1,22 +1,8 @@
 import random
 from copy import deepcopy
 
-from heuristics import Manhattan, Hamming
 from exceptions import GridException
-
-
-class PuzzleSolver:
-    def get_f(self) -> int:  # TODO implementation
-        """Returns total cost, consisting of actual cost and possible heuristic cost."""
-        return self.get_g() + self.get_h()
-
-    def get_g(self) -> int:  # TODO implementation
-        """Get current cost as number of iterations."""
-        pass
-
-    def get_h(self) -> int:  # TODO implementation
-        """Get cost as calculated by chosen heuristic."""
-        pass
+from heuristics import Heuristic, Hamming, Manhattan
 
 
 class Node:
@@ -96,3 +82,23 @@ class Node:
         grid: list[int] = [None, 1, 2, 3, 4, 5, 6, 7, 8]
         random.shuffle(grid)
         return grid
+
+
+class PuzzleSolver:
+    def __init__(self, initial_grid: list[int], goal_state: list[int], heuristic: Heuristic):
+        self.initial_grid = initial_grid
+        self.goal_state = goal_state
+        self.heuristic = heuristic
+        self.explored_nodes = []
+
+    def f_val(self, node: Node) -> int:
+        """Returns total cost, consisting of actual cost and possible heuristic cost."""
+        return node.get_level() + self.h_val(node)
+
+    def g_val(self, node: Node) -> int:
+        """Get current cost as number of iterations."""
+        return node.get_level()
+
+    def h_val(self, node: Node) -> int:
+        """Get cost as calculated by chosen heuristic."""
+        return self.heuristic.calc_heuristic_cost(node)
