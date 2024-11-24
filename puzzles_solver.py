@@ -43,13 +43,13 @@ class Node:
 
     def _is_goal_state(self) -> bool:
         """Compare grid to goal state."""
-        return self.grid == self._goal_state
+        return self.grid == self.goal_state
 
     def number_of_misplaced_tiles(self) -> int:
         """Count the number of misplaced tiles. Necessary for solvability as well as heuristics."""
         num: int = 0
         for i in range(9):
-            if self.grid[i] != self._goal_state[i]:
+            if self.grid[i] != self.goal_state[i]:
                 num += 1
         return num
 
@@ -57,11 +57,12 @@ class Node:
         """Swaps two tiles with corresponding indices."""
         self.grid[i], self.grid[j] = self.grid[j], self.grid[i]
 
-    def _get_next_states(self) -> list:
+    def _get_next_nodes(self) -> list:
         """
         Calculate all possible followup states, by swapping with the tile above (-3 tiles), left (-1 tile),
         right(+1 tile) and below (+3 tiles) from it.
         """
+        # TODO there surely is a nicer way to do this...
         neighbor_offset = {
             0: [1, 3],
             1: [-1, 1, 3],
