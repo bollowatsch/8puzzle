@@ -1,7 +1,7 @@
 """
 Module with all applicable heuristics for the 8-puzzle
 """
-from abc import abstractmethod, ABC
+from abc import abstractmethod
 from puzzles_solver import Node
 
 
