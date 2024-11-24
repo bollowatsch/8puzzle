@@ -1,4 +1,7 @@
-from heuristics import manhattan, hamming
+import random
+from copy import deepcopy
+
+from heuristics import Manhattan, Hamming
 from exceptions import GridException
 
 
@@ -25,12 +28,12 @@ class Node:
     _goal_state: list[int] = []
 
     def __init__(self, initial_grid=None, goal_state=None):
-        self.grid = initial_grid if initial_grid is not None else [7, 2, 4, 5, None, 6, 8, 3, 1]
-        self._goal_state = goal_state if goal_state is not None else [None, 1, 2, 3, 4, 5, 6, 7, 8]
+        self.grid = initial_grid if initial_grid is not None else self.create_random_grid()
+        self.goal_state = goal_state if goal_state is not None else [None, 1, 2, 3, 4, 5, 6, 7, 8]
 
         # Validate initial state
         if len(self.grid) != 9:
-            raise GridException
+            raise GridException(f"Invalid grid size. The grid should be 9 tiles large, not {len(self.grid)}")
         for num in range(1, 9):
             if not self.grid.__contains__(num):
                 raise GridException(f"The provided grid doesn't contain the number {num}."
@@ -42,13 +45,13 @@ class Node:
 
     def _is_solvable(self) -> bool:
         """8-puzzle is solvable if it contains an even number of misplaced tiles"""
-        return self._number_of_misplaced_tiles() % 2 == 0
+        return self.number_of_misplaced_tiles() % 2 == 0
 
     def _is_goal_state(self) -> bool:
         """Compare grid to goal state."""
         return self.grid == self._goal_state
 
-    def _number_of_misplaced_tiles(self) -> int:
+    def number_of_misplaced_tiles(self) -> int:
         """Count the number of misplaced tiles. Necessary for solvability as well as heuristics."""
         num: int = 0
         for i in range(9):
@@ -58,6 +61,7 @@ class Node:
 
     def _swap_tiles(self, i: int, j: int):
         """Swaps two tiles with corresponding indices."""
+        self.grid[i], self.grid[j] = self.grid[j], self.grid[i]
 
     def _get_next_states(self) -> list:
         """
@@ -82,3 +86,9 @@ class Node:
             temp_node._swap_tiles(empty_tile_index, empty_tile_index + offset)
             next_nodes.append(temp_node)
         return next_nodes
+
+    @staticmethod
+    def create_random_grid():
+        grid: list[int] = [None, 1, 2, 3, 4, 5, 6, 7, 8]
+        random.shuffle(grid)
+        return grid
