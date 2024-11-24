@@ -60,41 +60,25 @@ class Node:
         """Swaps two tiles with corresponding indices."""
 
     def _get_next_states(self) -> list:
-        """Calculate all possible followup states."""
+        """
+        Calculate all possible followup states, by swapping with the tile above (-3 tiles), left (-1 tile),
+        right(+1 tile) and below (+3 tiles) from it.
+        """
+        neighbor_offset = {
+            0: [1, 3],
+            1: [-1, 1, 3],
+            2: [-1, 3],
+            3: [-3, 1, 3],
+            4: [-3, -1, 1, 3],
+            5: [-3, -1, 3],
+            6: [-3, 1],
+            7: [-3, -1, 1],
+            8: [-3, -1],
+        }
         next_nodes: list[Node] = []
-        # index 0,2,6,8 -> 2 new possible states
-        # index 1,3,5,7 -> 3 new possible states
-        # index 4 -> 4 new possible states
-        if self.grid[4] is None:
-            # Swap with upper neighbour
-            node1 = Node(self.grid)
-            node1._swap_tiles(4, 1)
-            # Swap with left neighbor
-            node2 = Node(self.grid)
-            node2._swap_tiles(4, 3)
-            # Swap with right neighbor
-            node3 = Node(self.grid)
-            node3._swap_tiles(4, 5)
-            # Swap with down neighbor
-            node4 = Node(self.grid)
-            node4._swap_tiles(4, 7)
-
-            next_nodes.extend([node1, node2, node3, node4])
-
-        if self.grid[0] is None:
-            # Swap with upper neighbour
-            node1 = Node(self.grid)
-            node1._swap_tiles(4, 1)
-            # Swap with left neighbor
-            node2 = Node(self.grid)
-            node2._swap_tiles(4, 3)
-            # Swap with right neighbor
-            node3 = Node(self.grid)
-            node3._swap_tiles(4, 5)
-            # Swap with down neighbor
-            node4 = Node(self.grid)
-            node4._swap_tiles(4, 7)
-
-            next_nodes.extend([node1, node2, node3, node4])
-
+        empty_tile_index = self.grid.index(None)
+        for offset in neighbor_offset[empty_tile_index]:
+            temp_node = deepcopy(self)
+            temp_node._swap_tiles(empty_tile_index, empty_tile_index + offset)
+            next_nodes.append(temp_node)
         return next_nodes
