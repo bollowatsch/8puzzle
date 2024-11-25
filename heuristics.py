@@ -15,8 +15,17 @@ class Manhattan(Heuristic):
     """calculates the sum of the distance each tile is from its goal position."""
     def calc_heuristic_cost(self, node: Node):
         sum = 0
+        size = int(len(node.grid) ** 0.5)
         for num in node.grid:
-            sum += abs(node.grid.index(num) - node.goal_state.index(num))
+
+            # Current position (row, col)
+            curr_row, curr_col = divmod(num, size)
+
+            # Goal position (row, col)
+            goal_index = node.goal_state.index(num)
+            goal_row, goal_col = divmod(goal_index, size)
+
+            sum += abs(curr_row - goal_row) + abs(curr_col - goal_col)
         return sum
 
 

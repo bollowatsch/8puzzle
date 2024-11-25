@@ -62,24 +62,34 @@ class Node:
         Calculate all possible followup states, by swapping with the tile above (-3 tiles), left (-1 tile),
         right(+1 tile) and below (+3 tiles) from it.
         """
+
         # TODO there surely is a nicer way to do this...
-        neighbor_offset = {
-            0: [1, 3],
-            1: [-1, 1, 3],
-            2: [-1, 3],
-            3: [-3, 1, 3],
-            4: [-3, -1, 1, 3],
-            5: [-3, -1, 3],
-            6: [-3, 1],
-            7: [-3, -1, 1],
-            8: [-3, -1],
-        }
+        # neighbor_offset = {
+        #     0: [1, 3],
+        #     1: [-1, 1, 3],
+        #     2: [-1, 3],
+        #     3: [-3, 1, 3],
+        #     4: [-3, -1, 1, 3],
+        #     5: [-3, -1, 3],
+        #     6: [-3, 1],
+        #     7: [-3, -1, 1],
+        #     8: [-3, -1],
+        # }
+
+        neighbor_offset = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
+
+        grid_size: int = len(self.grid) ** 0.5
         next_nodes: list[Node] = []
         empty_tile_index = self.grid.index(None)
-        for offset in neighbor_offset[empty_tile_index]:
-            temp_node = deepcopy(self)
-            temp_node._swap_tiles(empty_tile_index, empty_tile_index + offset)
-            next_nodes.append(temp_node)
+        row, col = divmod(empty_tile_index, grid_size) #get current row and colum
+        for offset_row, offset_col in neighbor_offset:
+            new_row = row + offset_row
+            new_col = col + offset_col
+            if 0 <= new_row < grid_size and 0 <= new_col < grid_size:
+                new_index = new_row * grid_size + new_col
+                temp_node = deepcopy(self)
+                temp_node._swap_tiles(empty_tile_index, new_index)
+                next_nodes.append(temp_node)
         return next_nodes
 
     def get_level(self):
