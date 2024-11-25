@@ -124,10 +124,6 @@ class PuzzleSolver:
         """Returns total cost, consisting of actual cost and possible heuristic cost."""
         return node.get_level() + self.h_val(node)
 
-    def g_val(self, node: Node) -> int:
-        """Get current cost as number of iterations."""
-        return node.get_level()
-
     def h_val(self, node: Node) -> int:
         """Get cost as calculated by chosen heuristic."""
         return self.heuristic.calc_heuristic_cost(node)
