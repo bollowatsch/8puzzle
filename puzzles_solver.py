@@ -1,5 +1,6 @@
 import random
 from copy import deepcopy
+import heapq
 
 from exceptions import GridException
 from heuristics import Heuristic, Hamming, Manhattan
@@ -38,8 +39,18 @@ class Node:
         return self.grid == other.grid
 
     def _is_solvable(self) -> bool:
-        """8-puzzle is solvable if it contains an even number of misplaced tiles"""
-        return self.number_of_misplaced_tiles() % 2 == 0
+        """8-puzzle is solvable if it contains an even number of inversions"""
+        inversions: int = 0
+        n = len(self.grid)
+
+        # Compare each tile with all tiles after it
+        for i in range(n):
+            for j in range(i + 1, n):
+                if self.grid[i] is not None and self.grid[j] is not None:
+                    if self.grid[i] > self.grid[j]:
+                        inversions += 1
+
+        return inversions % 2 == 0
 
     def _is_goal_state(self) -> bool:
         """Compare grid to goal state."""

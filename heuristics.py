@@ -16,7 +16,11 @@ class Manhattan(Heuristic):
     def calc_heuristic_cost(self, node: Node):
         sum = 0
         size = int(len(node.grid) ** 0.5)
-        for num in node.grid:
+        for num, tile in node.grid:
+
+            # exclude empty tile
+            if tile is None:
+                continue
 
             # Current position (row, col)
             curr_row, curr_col = divmod(num, size)
