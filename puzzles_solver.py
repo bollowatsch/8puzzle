@@ -31,6 +31,8 @@ class Node:
         if not self._is_solvable():
             raise GridException("The provided grid is not solvable.")
 
+        self.solvable = self._is_solvable()
+
     def __eq__(self, other):
         # TODO equality is not enough, since we need to check, that the minimal cost of the state has to be saved
         if not isinstance(other, Node):
@@ -64,6 +66,10 @@ class Node:
                 num += 1
         return num
 
+    def __lt__(self, other):
+        """Define comparison for Node based on level."""
+        return self.level < other.level
+
     def _swap_tiles(self, i: int, j: int):
         """Swaps two tiles with corresponding indices."""
         self.grid[i], self.grid[j] = self.grid[j], self.grid[i]
@@ -89,7 +95,7 @@ class Node:
 
         neighbor_offset = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
 
-        grid_size: int = len(self.grid) ** 0.5
+        grid_size: int = int(len(self.grid) ** 0.5)
         next_nodes: list[Node] = []
         empty_tile_index = self.grid.index(None)
         row, col = divmod(empty_tile_index, grid_size) #get current row and colum
@@ -100,6 +106,7 @@ class Node:
                 new_index = new_row * grid_size + new_col
                 temp_node = deepcopy(self)
                 temp_node._swap_tiles(empty_tile_index, new_index)
+                temp_node.level = self.level + 1
                 next_nodes.append(temp_node)
         return next_nodes
 
@@ -120,10 +127,56 @@ class PuzzleSolver:
         self.heuristic = heuristic
         self.explored_nodes = []
 
+
     def f_val(self, node: Node) -> int:
         """Returns total cost, consisting of actual cost and possible heuristic cost."""
-        return node.get_level() + self.h_val(node)
+        return node.get_level() + self.heuristic.calc_heuristic_cost(node.grid, node.goal_state)
 
     def h_val(self, node: Node) -> int:
         """Get cost as calculated by chosen heuristic."""
-        return self.heuristic.calc_heuristic_cost(node)
+        return self.heuristic.calc_heuristic_cost(node.grid, node.goal_state)
+
+    def solve(self):
+        open_nodes = []
+        visited_nodes = set()
+
+        try:
+            initial_node = Node(self.initial_grid, self.goal_state)
+        except GridException as e:
+            print(e)
+            return None
+
+        if not initial_node.solvable:
+            print("The provided grid is not solvable.")
+            return None
+
+        heapq.heappush(open_nodes, (self.f_val(initial_node), initial_node))
+        visited_nodes.add(tuple(initial_node.grid))
+
+        while open_nodes:
+            current_node = heapq.heappop(open_nodes)[1]
+
+            if current_node._is_goal_state():
+                print("Goal reached in # moves: {current_node.get_level()}")
+                return current_node
+
+            for child in current_node._get_next_nodes():
+                if tuple(child.grid) not in visited_nodes:
+                    heapq.heappush(open_nodes, (self.f_val(child), child))
+                    visited_nodes.add(tuple(child.grid))
+
+        return None
+
+if __name__ == "__main__":
+    goal_state = [None, 1, 2, 3, 4, 5, 6, 7, 8]
+    initial_grid = Node.create_random_grid()
+    print(initial_grid)
+
+    selected_heuristic = Manhattan()
+    solver = PuzzleSolver(initial_grid, goal_state, selected_heuristic)
+    solution = solver.solve()
+
+    if solution:
+        print(f"Solution found! Number of moves needed: {solution.get_level()}")
+    else:
+        print("No solution exists.")
