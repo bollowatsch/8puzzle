@@ -1,6 +1,8 @@
 import random
 from copy import deepcopy
 import heapq
+import time
+import statistics
 
 from exceptions import GridException
 from heuristics import Heuristic, Hamming, Manhattan
@@ -126,6 +128,7 @@ class PuzzleSolver:
         self.goal_state = goal_state
         self.heuristic = heuristic
         self.explored_nodes = []
+        self.expanded_nodes = 0
 
 
     def f_val(self, node: Node) -> int:
@@ -153,11 +156,15 @@ class PuzzleSolver:
         heapq.heappush(open_nodes, (self.f_val(initial_node), initial_node))
         visited_nodes.add(tuple(initial_node.grid))
 
+        expanded_nodes = 0  # Counter for the number of expanded nodes
+
         while open_nodes:
             current_node = heapq.heappop(open_nodes)[1]
 
             if current_node._is_goal_state():
-                print("Goal reached in # moves: {current_node.get_level()}")
+                level =  str(current_node.get_level())
+                print(f"Goal reached in # moves: {level}")
+                print(f"Total nodes expanded: {expanded_nodes}")
                 return current_node
 
             for child in current_node._get_next_nodes():
@@ -165,18 +172,105 @@ class PuzzleSolver:
                     heapq.heappush(open_nodes, (self.f_val(child), child))
                     visited_nodes.add(tuple(child.grid))
 
+            self.expanded_nodes += 1  # Increment the counter each time a node is expanded
+
         return None
+
+
+def generate_random_states(num_states):
+    random_states = []
+    for _ in range(num_states):
+        random_states.append(Node.create_random_grid())  # Create a random grid and add it to the list
+    return random_states
+
+def analyze_results(manhattan_results, hamming_results):
+    manhattan_times = [result[0] for result in manhattan_results]
+    manhattan_nodes = [result[1] for result in manhattan_results]
+
+    hamming_times = [result[0] for result in hamming_results]
+    hamming_nodes = [result[1] for result in hamming_results]
+
+    # Calculate statistics
+    manhattan_time_mean = statistics.mean(manhattan_times)
+    manhattan_time_std = statistics.stdev(manhattan_times)
+
+    manhattan_nodes_mean = statistics.mean(manhattan_nodes)
+    manhattan_nodes_std = statistics.stdev(manhattan_nodes)
+
+    hamming_time_mean = statistics.mean(hamming_times)
+    hamming_time_std = statistics.stdev(hamming_times)
+
+    hamming_nodes_mean = statistics.mean(hamming_nodes)
+    hamming_nodes_std = statistics.stdev(hamming_nodes)
+
+    print("Manhattan Heuristic:")
+    print(f"Average time: {manhattan_time_mean:.5f} seconds, Standard deviation: {manhattan_time_std:.5f}")
+    print(f"Average nodes expanded: {manhattan_nodes_mean:.0f}, Standard deviation: {manhattan_nodes_std:.0f}")
+
+    print("\nHamming Heuristic:")
+    print(f"Average time: {hamming_time_mean:.5f} seconds, Standard deviation: {hamming_time_std:.5f}")
+    print(f"Average nodes expanded: {hamming_nodes_mean:.0f}, Standard deviation: {hamming_nodes_std:.0f}")
+
 
 if __name__ == "__main__":
     goal_state = [None, 1, 2, 3, 4, 5, 6, 7, 8]
-    initial_grid = Node.create_random_grid()
-    print(initial_grid)
+    # initial_grid = Node.create_random_grid()
+    # print(initial_grid)
+    #
+    # print("Manhattan Heuristic")
+    # selected_heuristic = Manhattan()
+    # solver = PuzzleSolver(initial_grid, goal_state, selected_heuristic)
+    # solution = solver.solve()
+    #
+    # if solution:
+    #     print(f"Solution found! Number of moves needed with Manhattan: {solution.get_level()}\n")
+    # else:
+    #     print("No solution exists.\n")
+    #
+    # print("Hamming Heuristic")
+    # selected_heuristic = Hamming()
+    # solver = PuzzleSolver(initial_grid, goal_state, selected_heuristic)
+    # solution_hamming = solver.solve()
+    #
+    # if solution_hamming:
+    #     print(f"Solution found! Number of moves needed with Hamming: {solution_hamming.get_level()}")
+    # else:
+    #     print("No solution exists.")
 
-    selected_heuristic = Manhattan()
-    solver = PuzzleSolver(initial_grid, goal_state, selected_heuristic)
-    solution = solver.solve()
+    num_states = 100
+    random_states = generate_random_states(num_states)
 
-    if solution:
-        print(f"Solution found! Number of moves needed: {solution.get_level()}")
-    else:
-        print("No solution exists.")
+    manhattan_results = []
+    hamming_results = []
+
+    # Run the solver for each random state with Manhattan heuristic
+    for state in random_states:
+        solver = PuzzleSolver(state, goal_state, Manhattan())
+
+        # Track start time
+        start_time = time.time()
+        solution_manhattan = solver.solve()
+        end_time = time.time()
+
+        # Calculate the time taken and number of nodes expanded
+        time_taken = end_time - start_time
+        nodes_expanded = solver.expanded_nodes
+
+        manhattan_results.append((time_taken, nodes_expanded))
+
+    # Run the solver for each random state with Hamming heuristic
+    for state in random_states:
+        solver = PuzzleSolver(state, goal_state, Hamming())
+
+        # Track start time
+        start_time = time.time()
+        solution_hamming = solver.solve()
+        end_time = time.time()
+
+        # Calculate the time taken and number of nodes expanded
+        time_taken = end_time - start_time
+        nodes_expanded = solver.expanded_nodes
+
+        hamming_results.append((time_taken, nodes_expanded))
+
+    analyze_results(manhattan_results, hamming_results)

@@ -30,6 +30,7 @@ class Manhattan(Heuristic):
             goal_row, goal_col = divmod(goal_index, size)
 
             sum += abs(curr_row - goal_row) + abs(curr_col - goal_col)
+            # print("Calculated Manhattan costs:" + str(sum))
         return sum
 
 
