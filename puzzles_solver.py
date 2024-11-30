@@ -82,19 +82,6 @@ class Node:
         right(+1 tile) and below (+3 tiles) from it.
         """
 
-        # TODO there surely is a nicer way to do this...
-        # neighbor_offset = {
-        #     0: [1, 3],
-        #     1: [-1, 1, 3],
-        #     2: [-1, 3],
-        #     3: [-3, 1, 3],
-        #     4: [-3, -1, 1, 3],
-        #     5: [-3, -1, 3],
-        #     6: [-3, 1],
-        #     7: [-3, -1, 1],
-        #     8: [-3, -1],
-        # }
-
         neighbor_offset = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # Up, Down, Left, Right
 
         grid_size: int = int(len(self.grid) ** 0.5)
@@ -143,15 +130,8 @@ class PuzzleSolver:
         open_nodes = []
         visited_nodes = set()
 
-        try:
-            initial_node = Node(self.initial_grid, self.goal_state)
-        except GridException as e:
-            print(e)
-            return None
+        initial_node = Node(self.initial_grid, self.goal_state)
 
-        if not initial_node.solvable:
-            print("The provided grid is not solvable.")
-            return None
 
         heapq.heappush(open_nodes, (self.f_val(initial_node), initial_node))
         visited_nodes.add(tuple(initial_node.grid))
@@ -244,33 +224,40 @@ if __name__ == "__main__":
     hamming_results = []
 
     # Run the solver for each random state with Manhattan heuristic
-    for state in random_states:
-        solver = PuzzleSolver(state, goal_state, Manhattan())
+    for i in range(num_states):
+        random_grid = None
+        while True:
+            random_grid = Node.create_random_grid()
+            try:
+                # retry, if a Node cannot be initialised (unsovlable)
+                Node(initial_grid=random_grid)
+                break
+            except GridException as e:
+                print("Grid is not solvable, try another one")
 
-        # Track start time
+        solver = PuzzleSolver(random_grid, goal_state, Manhattan())
         start_time = time.time()
         solution_manhattan = solver.solve()
-        end_time = time.time()
-
         # Calculate the time taken and number of nodes expanded
-        time_taken = end_time - start_time
+        time_taken = time.time() - start_time
         nodes_expanded = solver.expanded_nodes
 
         manhattan_results.append((time_taken, nodes_expanded))
 
-    # Run the solver for each random state with Hamming heuristic
-    for state in random_states:
-        solver = PuzzleSolver(state, goal_state, Hamming())
+        print(f"Grid #{i+1} - Manattan: {nodes_expanded} Nodes in {time_taken:.4f} seconds")
+
+        # Run the solver for each random state with Hamming heuristic
+        solver = PuzzleSolver(random_grid, goal_state, Hamming())
 
         # Track start time
         start_time = time.time()
         solution_hamming = solver.solve()
-        end_time = time.time()
-
-        # Calculate the time taken and number of nodes expanded
-        time_taken = end_time - start_time
+        time_taken = time.time() - start_time
         nodes_expanded = solver.expanded_nodes
 
         hamming_results.append((time_taken, nodes_expanded))
+
+        print(f"Grid #{i+1} - Hamming: {nodes_expanded} Nodes in {time_taken:.4f} seconds")
+
 
     analyze_results(manhattan_results, hamming_results)
