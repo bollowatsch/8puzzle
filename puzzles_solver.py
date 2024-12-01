@@ -3,6 +3,7 @@ from copy import deepcopy
 import heapq
 import time
 import statistics
+import matplotlib.pyplot as plt
 
 from exceptions import GridException
 from heuristics import Heuristic, Hamming, Manhattan
@@ -153,6 +154,24 @@ class PuzzleSolver:
 
         return None
 
+
+def plot_data_with_stats(axs, data, heuristic):
+    data_mean = statistics.mean(data)
+    data_std = statistics.stdev(data)
+
+    axs.plot(data, 'o', label=heuristic)
+    axs.axhline(y=data_mean, color='r', linestyle='-', label=f'Mean: {data_mean:.2f}')
+    axs.fill_between(range(len(data)), data_mean - data_std,
+                     data_mean + data_std, color='r', alpha=0.2,
+                     label=f'Standard Deviation: {data_std:.2f}')
+
+    # Add labels and legend
+    axs.set_xlabel('Index')
+    axs.set_ylabel('Value')
+    axs.set_title('Data Points with Mean and Standard Deviation')
+    axs.legend()
+
+
 def analyze_results(manhattan_results, hamming_results):
     manhattan_times = [result[0] for result in manhattan_results]
     manhattan_nodes = [result[1] for result in manhattan_results]
@@ -180,6 +199,16 @@ def analyze_results(manhattan_results, hamming_results):
     print("\nHamming Heuristic:")
     print(f"Average time: {hamming_time_mean:.5f} seconds, Standard deviation: {hamming_time_std:.5f}")
     print(f"Average nodes expanded: {hamming_nodes_mean:.0f}, Standard deviation: {hamming_nodes_std:.0f}")
+
+    # Create subplots and plot different datasets
+    fig, axs = plt.subplots(2, 2, figsize=(12, 10))
+    plot_data_with_stats(axs[0, 0], manhattan_times, 'Manhattan Times')
+    plot_data_with_stats(axs[0, 1], hamming_times, 'Hamming Times')
+    plot_data_with_stats(axs[1, 0], manhattan_nodes, 'Manhattan Nodes')
+    plot_data_with_stats(axs[1, 1], hamming_nodes, 'Hamming Nodes')
+    plt.tight_layout()
+    plt.show()
+
 
 
 if __name__ == "__main__":
