@@ -192,13 +192,17 @@ def analyze_results(manhattan_results, hamming_results):
     hamming_nodes_mean = statistics.mean(hamming_nodes)
     hamming_nodes_std = statistics.stdev(hamming_nodes)
 
-    print("\nManhattan Heuristic:")
-    print(f"Average time: {manhattan_time_mean:.5f} seconds, Standard deviation: {manhattan_time_std:.5f}")
-    print(f"Average nodes expanded: {manhattan_nodes_mean:.0f}, Standard deviation: {manhattan_nodes_std:.0f}")
+    print(f"""
+    ### Manhattan Heuristic ###
+    Min: {min(manhattan_times):.5f} | Max: {max(manhattan_times):.5f}
+    Average time: {manhattan_time_mean:.5f} seconds, Standard deviation: {manhattan_time_std:.5f}
+    Average nodes expanded: {manhattan_nodes_mean:.0f}, Standard deviation: {manhattan_nodes_std:.0f}
 
-    print("\nHamming Heuristic:")
-    print(f"Average time: {hamming_time_mean:.5f} seconds, Standard deviation: {hamming_time_std:.5f}")
-    print(f"Average nodes expanded: {hamming_nodes_mean:.0f}, Standard deviation: {hamming_nodes_std:.0f}")
+    ### Hamming Heuristic ###
+    Min: {min(hamming_times):.5f} | Max: {max(hamming_times):.5f}
+    Average time: {hamming_time_mean:.5f} seconds, Standard deviation: {hamming_time_std:.5f}
+    Average nodes expanded: {hamming_nodes_mean:.0f}, Standard deviation: {hamming_nodes_std:.0f}
+    """)
 
     # Create subplots and plot different datasets
     fig, axs = plt.subplots(2, 2, figsize=(12, 10))
